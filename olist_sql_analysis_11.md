@@ -44,6 +44,7 @@ JOIN order_items oi ON o.order_id = oi.order_id
 WHERE o.order_status = 'delivered';
 ```
 
+<img width="1135" height="107" alt="image" src="https://github.com/user-attachments/assets/0adef090-078e-4ebb-940f-014745002883" />
 
 
 ---
