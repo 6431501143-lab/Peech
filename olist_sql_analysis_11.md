@@ -62,8 +62,7 @@ ORDER BY order_count DESC;
 ```
 
 **Result:**
-
-![1.2_order_status](images/1_2_order_status.png)
+<img width="428" height="377" alt="image" src="https://github.com/user-attachments/assets/67b1e52c-f00a-49f7-8e12-dcdb5e13da03" />
 
 ---
 
