@@ -44,6 +44,10 @@ JOIN order_items oi ON o.order_id = oi.order_id
 WHERE o.order_status = 'delivered';
 ```
 
+
+**Result:**
+
+
 <img width="1135" height="107" alt="image" src="https://github.com/user-attachments/assets/0adef090-078e-4ebb-940f-014745002883" />
 
 
@@ -76,24 +80,21 @@ ORDER BY order_count DESC;
 
 ```sql
 SELECT
-    DATE_TRUNC('month', o.order_purchase_timestamp)  AS month,
-    COUNT(DISTINCT o.order_id)                        AS total_orders,
-    ROUND(SUM(oi.price), 2)                           AS monthly_revenue,
-    ROUND(AVG(oi.price), 2)                           AS avg_order_value,
-    ROUND(
-        (SUM(oi.price) - LAG(SUM(oi.price)) OVER (ORDER BY DATE_TRUNC('month', o.order_purchase_timestamp)))
-        / LAG(SUM(oi.price)) OVER (ORDER BY DATE_TRUNC('month', o.order_purchase_timestamp)) * 100
-    , 2)                                              AS mom_growth_pct
+    strftime('%Y-%m', o.order_purchase_timestamp) AS month,
+    COUNT(DISTINCT o.order_id)                     AS total_orders,
+    ROUND(SUM(oi.price), 2)                        AS monthly_revenue,
+    ROUND(AVG(oi.price), 2)                        AS avg_order_value
 FROM orders o
 JOIN order_items oi ON o.order_id = oi.order_id
 WHERE o.order_status = 'delivered'
-GROUP BY DATE_TRUNC('month', o.order_purchase_timestamp)
+GROUP BY strftime('%Y-%m', o.order_purchase_timestamp)
 ORDER BY month;
 ```
 
 **Result:**
 
-![2.1_monthly_revenue](images/2_1_monthly_revenue.png)
+<img width="577" height="442" alt="image" src="https://github.com/user-attachments/assets/3215b475-6471-48d5-9f68-de2c57a00d3c" />
+
 
 ---
 
@@ -101,19 +102,28 @@ ORDER BY month;
 
 ```sql
 SELECT
-    TO_CHAR(order_purchase_timestamp, 'Day') AS day_of_week,
-    EXTRACT(DOW FROM order_purchase_timestamp) AS dow_num,
-    COUNT(*) AS total_orders,
-    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 2) AS pct
+    CASE strftime('%w', order_purchase_timestamp)
+        WHEN '0' THEN 'Sunday'
+        WHEN '1' THEN 'Monday'
+        WHEN '2' THEN 'Tuesday'
+        WHEN '3' THEN 'Wednesday'
+        WHEN '4' THEN 'Thursday'
+        WHEN '5' THEN 'Friday'
+        WHEN '6' THEN 'Saturday'
+    END                                          AS day_of_week,
+    strftime('%w', order_purchase_timestamp)     AS dow_num,
+    COUNT(*)                                     AS total_orders,
+    ROUND(COUNT(*) * 100.0
+          / (SELECT COUNT(*) FROM orders), 2)   AS percentage
 FROM orders
-GROUP BY TO_CHAR(order_purchase_timestamp, 'Day'),
-         EXTRACT(DOW FROM order_purchase_timestamp)
+GROUP BY strftime('%w', order_purchase_timestamp)
 ORDER BY dow_num;
 ```
 
 **Result:**
 
-![2.2_day_of_week](images/2_2_day_of_week.png)
+<img width="532" height="320" alt="image" src="https://github.com/user-attachments/assets/f0852e4c-1662-49b4-b8da-b5af730f7380" />
+
 
 ---
 
@@ -121,16 +131,18 @@ ORDER BY dow_num;
 
 ```sql
 SELECT
-    EXTRACT(HOUR FROM order_purchase_timestamp) AS hour_of_day,
-    COUNT(*) AS total_orders
+    strftime('%H', order_purchase_timestamp) AS hour_of_day,
+    COUNT(*)                                  AS total_orders
 FROM orders
-GROUP BY EXTRACT(HOUR FROM order_purchase_timestamp)
+GROUP BY strftime('%H', order_purchase_timestamp)
 ORDER BY hour_of_day;
 ```
 
 **Result:**
 
-![2.3_hourly_orders](images/2_3_hourly_orders.png)
+<img width="298" height="647" alt="image" src="https://github.com/user-attachments/assets/31275bfa-d5d3-4df7-84cc-7e7171613e2a" />
+<img width="267" height="301" alt="image" src="https://github.com/user-attachments/assets/4e60028b-f02d-4112-aa2d-2a6346af7ec9" />
+
 
 ---
 
