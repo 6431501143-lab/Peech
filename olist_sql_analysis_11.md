@@ -62,6 +62,8 @@ ORDER BY order_count DESC;
 ```
 
 **Result:**
+
+
 <img width="428" height="377" alt="image" src="https://github.com/user-attachments/assets/67b1e52c-f00a-49f7-8e12-dcdb5e13da03" />
 
 ---
